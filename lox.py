@@ -7,20 +7,13 @@ Recent Date:    07/04/2021 MM/DD/YYYY
 '''
 import sys
 
-from scanner import Scanner
+import scanner
 
 num_args = len(sys.argv)
 args = sys.argv
 
 class Lox:
     def __init__(self):
-        if num_args > 2:        # If more than just a file path was passed:
-            sys.exit(64)
-        elif num_args == 1:     # If just a file path was passed: #if something doesnt work try changing 1 to 2
-            run_file(args[1])
-        else:
-            run_prompt()        # Else Start the REPL
-        
         self.had_error = False
 
 
@@ -51,20 +44,30 @@ class Lox:
     Runs whatever lox code is passed in
     '''
     def run(self, code):
-        scanner = Scanner(code)
-        tokens = list(scanner.scan_tokens())
+        local_scanner = scanner.Scanner(code) # type(local_scanner) -> Scanner
+        tokens = list(local_scanner.scan_tokens())
 
         for token in tokens:
             print(token)
         
-        if had_error:
+        if self.had_error:
             sys.exit(65)
     
 
-    def error(self, line, where, message):
-        report(line, where, message) #report(data, line, where, message)
+    def error(self, line, where='', message=None):
+        self.report(self, line, where, message)
     
 
     def report(self, line, where, message):
         print(f'[line {line}] Error {where}: {message}')
         self.had_error = True
+
+
+if __name__ == '__main__':
+    x = Lox()
+    if num_args > 2:        # If more than just a file path was passed:
+        sys.exit(64)
+    elif num_args == 2:     # If just a file path was passed:
+        x.run_file(args[1])
+    else:
+        x.run_prompt()        # Else Start the REPL

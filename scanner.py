@@ -1,6 +1,6 @@
 from tokentype import TokenType
 from token import Token
-from lox import Lox
+import lox
 
 class Scanner:
     def __init__(self, source):
@@ -30,7 +30,7 @@ class Scanner:
             ';': lambda c: TokenType.SEMICOLON,
             '*': lambda c: TokenType.STAR,
             '!': lambda c: TokenType.BANG_EQUAL if self._match('=') else TokenType.BANG,
-            '=': lambda c: TokenType.EQUAL_EQUAL if self._match('=') else TokenType.BANG,
+            '=': lambda c: TokenType.EQUAL_EQUAL if self._match('=') else TokenType.EQUAL,
             '<': lambda c: TokenType.LESS_EQUAL if self._match('=') else TokenType.LESS,
             '>': lambda c: TokenType.GREATER_EQUAL if self._match('=') else TokenType.GREATER,
             '/': lambda c: self._slash_logic(),
@@ -40,6 +40,24 @@ class Scanner:
             '\t': lambda c: None,
             '\n': lambda c: self._advance_line(),
             '"': lambda c: self._string_logic(),
+        }
+        self.keywords = {
+            'and': TokenType.AND,
+            'class': TokenType.CLASS,
+            'else': TokenType.ELSE,
+            'false': TokenType.FALSE,
+            'for': TokenType.FOR,
+            'fun': TokenType.FUN,
+            'if': TokenType.IF,
+            'nil': TokenType.NIL,
+            'or': TokenType.OR,
+            'print': TokenType.PRINT,
+            'return': TokenType.RETURN,
+            'super': TokenType.SUPER,
+            'this': TokenType.THIS,
+            'true': TokenType.TRUE,
+            'var': TokenType.VAR,
+            'while': TokenType.WHILE,
         }
 
     '''
@@ -71,14 +89,20 @@ class Scanner:
         elif self._is_alpha(c):
             self._identifier_logic()
         else:
-            Lox.error(self.line, 'Unexpected character.')
+            lox.Lox.error(self=lox.Lox, line=self.line, message='Unexpected character.')
     
 
     def _identifier_logic(self):
-        while self._is_alpha_numeric():
+        while self._is_alpha_numeric(self._peek()):
             self._advance()
 
-        self._add_token(TokenType.IDENTIFIER)
+        # if the lexeme is not a keyword, the lexeme is an identifier. Otherwise, return the keyword token type
+        text = self.source[self.start:self.current]
+        t_type = self.keywords.get(text) # t_type means token type
+        if t_type is None:
+           t_type = TokenType.IDENTIFIER
+        
+        self._add_token(t_type)
     
 
     def _slash_logic(self):
@@ -97,7 +121,7 @@ class Scanner:
             self._advance()
         
         if self._is_at_end():
-            Lox.error(self.line, 'Unterminated string.')
+            lox.Lox.error(self.line, message='Unterminated string.')
             return None
         
         # The closing "
@@ -142,7 +166,7 @@ class Scanner:
     def _peek(self):
         if self._is_at_end():
             return '\0'
-        return self.source[current]
+        return self.source[self.current]
     
 
     def _peek_next(self):
@@ -160,7 +184,7 @@ class Scanner:
 
 
     def _is_at_end(self):
-        return (current >= len(self.source))
+        return (self.current >= len(self.source))
     
 
     def _is_digit(self, c):
@@ -173,16 +197,12 @@ class Scanner:
     def _advance(self):
         self.current += 1
         return self.source[self.current - 1]
-    
 
-    def _add_token(self, token_type):
-        self._add_token(token_type, None)
-    
 
-    def _add_token(self, token_type, literal):
+    def _add_token(self, token_type, literal=None):
         text = self.source[self.start:self.current]
         self.tokens.append(Token(token_type, text, literal, self.line))
-    
+
 
     def _advance_line(self):
         self.line += 1
