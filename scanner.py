@@ -10,7 +10,14 @@ class Scanner:
         self.current = 0
         self.line = 1
 
-        self.digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        self.alpha = [ # uppercase, lowercase, and underscore
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 
+            'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 
+            'Y', 'Z',
+            '_'
+        ]
+        self.digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] # .isdigit() could work but it checks more than we want or need
         self.token_strings = {
             '(': lambda c: TokenType.LEFT_PAREN,
             ')': lambda c: TokenType.RIGHT_PAREN,
@@ -41,7 +48,7 @@ class Scanner:
     def scan_tokens(self):
         while not self._is_at_end():
             # We are at the beggining of the next lexeme
-            start = self.current
+            self.start = self.current
             self._scan_token()
         
         self.tokens.append(Token(TokenType.EOF, '', None, self.line))
@@ -56,16 +63,22 @@ class Scanner:
     def _scan_token(self):
         c = self._advance() # c = next character
         if c in self.token_strings:
-            if self._is_digit(c):
-                self._number_logic()
-            else:
-                c = self.token_strings[c](c) # get key c and return value c (which is a lambda returning the correct token)
-                if c is not None:
-                    self._add_token(c)
+            c = self.token_strings[c](c) # get key c and return value c (which is a lambda returning the correct token)
+            if c is not None:
+                self._add_token(c)
         elif self._is_digit(c): 
             self._number_logic()
+        elif self._is_alpha(c):
+            self._identifier_logic()
         else:
             Lox.error(self.line, 'Unexpected character.')
+    
+
+    def _identifier_logic(self):
+        while self._is_alpha_numeric():
+            self._advance()
+
+        self._add_token(TokenType.IDENTIFIER)
     
 
     def _slash_logic(self):
@@ -136,6 +149,14 @@ class Scanner:
         if (self.current + 1) >= len(self.source):
             return '\0'
         return self.source[self.current + 1]
+
+
+    def _is_alpha(self, c):
+        return c in self.alpha # this includes '_'
+    
+
+    def _is_alpha_numeric(self, c):
+        return self._is_alpha(c) or self._is_digit(c)
 
 
     def _is_at_end(self):
