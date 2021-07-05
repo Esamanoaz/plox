@@ -107,22 +107,31 @@ class Scanner:
     
 
     def _slash_logic(self):
-        if self._match('/'): # if the next char is also '/':
+        if self._match('/'): # if the next char is also '/', marking a single line comment:
             # A comment goes until the end of the line
             while (self._peek() != '\n') and not self._is_at_end(): 
                 self._advance()
+        elif self._match('*'): # if the next char is a '*', marking a multiline comment:
+            while not self._is_at_end():
+                if self._match('\n'):
+                    self.line += 1
+                elif self._match('*') and self._match('/'):
+                    break
+                else:
+                    self._advance()
         else:
             self._add_token(TokenType.SLASH)
     
 
     def _string_logic(self):
+        starting_line = self.line
         while (self._peek() != '"') and not self._is_at_end():
             if self._peek() == '\n': # Strings are multiline, so when we hit a newline, line++
                 self.line += 1 
             self._advance()
         
         if self._is_at_end():
-            self.interpreter.error(line=self.line, message='Unterminated string.')
+            self.interpreter.error(line=starting_line, message='Unterminated string.')
             return None # return so that we skip the below code and an index error is not thrown
         
         # The closing "
@@ -154,11 +163,11 @@ class Scanner:
     def _match(self, expected):
         if self._is_at_end():
             return False
-        if self.source[self.current] != expected: # if the next character is not expected
+        elif self.source[self.current] != expected: # if the next character is not expected
             return False
-
-        self.current += 1
-        return True
+        else:
+            self.current += 1
+            return True
     
 
     '''
