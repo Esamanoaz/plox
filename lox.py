@@ -31,7 +31,6 @@ class Lox:
     Start the REPL
     '''
     def run_prompt(self):
-        self.had_error = False
         while True:
             line = input('> ')
             if line == '<exit REPL>':
@@ -44,12 +43,12 @@ class Lox:
     Runs whatever lox code is passed in
     '''
     def run(self, code):
-        local_scanner = scanner.Scanner(code) # type(local_scanner) -> Scanner
+        local_scanner = scanner.Scanner(code, self) # type(local_scanner) -> Scanner
         tokens = list(local_scanner.scan_tokens())
 
         for token in tokens:
             print(token)
-        
+
         if self.had_error:
             sys.exit(65)
     

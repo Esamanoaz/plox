@@ -3,8 +3,9 @@ from token import Token
 import lox
 
 class Scanner:
-    def __init__(self, source):
+    def __init__(self, source, interpreter):
         self.source = source
+        self.interpreter = interpreter
         self.tokens = []
         self.start = 0
         self.current = 0
@@ -89,8 +90,7 @@ class Scanner:
         elif self._is_alpha(c):
             self._identifier_logic()
         else:
-            from lox import lox_interp
-            lox_interp.error(line=self.line, message='Unexpected character.')
+            self.interpreter.error(line=self.line, message='Unexpected character.')
     
 
     def _identifier_logic(self):
@@ -122,9 +122,8 @@ class Scanner:
             self._advance()
         
         if self._is_at_end():
-            from lox import lox_interp
-            lox_interp.error(line=self.line, message='Unterminated string.')
-            return None
+            self.interpreter.error(line=self.line, message='Unterminated string.')
+            return None # return so that we skip the below code and an index error is not thrown
         
         # The closing "
         self._advance()
