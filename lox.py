@@ -31,13 +31,13 @@ class Lox:
     Start the REPL
     '''
     def run_prompt(self):
+        self.had_error = False
         while True:
             line = input('> ')
-            if line == None:
+            if line == '<exit REPL>':
                 break
 
             self.run(line)
-            self.had_error = False
     
 
     '''
@@ -55,7 +55,7 @@ class Lox:
     
 
     def error(self, line, where='', message=None):
-        self.report(self, line, where, message)
+        self.report(line, where, message)
     
 
     def report(self, line, where, message):
@@ -63,11 +63,11 @@ class Lox:
         self.had_error = True
 
 
+lox_interp = Lox() # lox_interpreter, because we need self and access to class variables for some methods
 if __name__ == '__main__':
-    x = Lox()
     if num_args > 2:        # If more than just a file path was passed:
         sys.exit(64)
     elif num_args == 2:     # If just a file path was passed:
-        x.run_file(args[1])
+        lox_interp.run_file(args[1])
     else:
-        x.run_prompt()        # Else Start the REPL
+        lox_interp.run_prompt()        # Else Start the REPL

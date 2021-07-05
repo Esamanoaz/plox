@@ -10,7 +10,7 @@ class Scanner:
         self.current = 0
         self.line = 1
 
-        self.alpha = [ # uppercase, lowercase, and underscore
+        self.alpha = [ # lowercase, uppercase, and underscore
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 
             'y', 'z',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 
@@ -89,7 +89,8 @@ class Scanner:
         elif self._is_alpha(c):
             self._identifier_logic()
         else:
-            lox.Lox.error(self=lox.Lox, line=self.line, message='Unexpected character.')
+            from lox import lox_interp
+            lox_interp.error(line=self.line, message='Unexpected character.')
     
 
     def _identifier_logic(self):
@@ -121,7 +122,8 @@ class Scanner:
             self._advance()
         
         if self._is_at_end():
-            lox.Lox.error(self.line, message='Unterminated string.')
+            from lox import lox_interp
+            lox_interp.error(line=self.line, message='Unterminated string.')
             return None
         
         # The closing "
