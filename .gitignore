@@ -114,4 +114,7 @@ dmypy.json
 .pyre/
 
 # test lox file
-lox_file.txt
+test_code.lox
+
+# test tool files, like the expr.py outputs
+/tool/expr.py

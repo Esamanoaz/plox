@@ -1,9 +1,9 @@
 '''
-Title:          Pylox
-Description:    A python implementation of the Lox language
+Title:          Plox
+Description:    A python interpreter implementation of the Lox programming language
 Author:         Evan Samano
 Start Date:     08/04/2020 MM/DD/YYYY
-Recent Date:    07/04/2021 MM/DD/YYYY
+Recent Date:    07/08/2021 MM/DD/YYYY
 '''
 import sys
 
